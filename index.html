@@ -15,10 +15,14 @@
   --dim:#8b8f99; --gold:#d0a94a; --gold2:#6b5520; --dimtxt:#cfc9ba;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);
+html{background:#0d0e11}
+html,body{margin:0;padding:0;color:var(--ink);
   font-family:"Songti SC","STSong","Noto Serif SC","Source Han Serif SC",serif;
   -webkit-text-size-adjust:100%}
-body{min-height:100vh;background-image:radial-gradient(circle at 50% 0%,#1b1f27 0%,#0d0e11 55%);background-attachment:fixed}
+body{min-height:100vh;background:transparent}
+/* iOS 安全写法：不用 background-attachment:fixed */
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:radial-gradient(circle at 50% 0%,#1b1f27 0%,#0d0e11 55%)}
 .wrap{max-width:520px;margin:0 auto;padding:calc(18px + env(safe-area-inset-top)) 16px calc(36px + env(safe-area-inset-bottom))}
 
 header{text-align:center;padding:6px 0 18px}
@@ -150,13 +154,11 @@ h1 .dot{color:var(--gold)}
 .q-item .t{font-size:11.5px;color:#6d727c}
 .q-item.good .n{color:#8fc79b}
 .q-item.bad .n{color:#d98b86}
-
 footer{margin-top:26px;text-align:center;font-size:11px;color:#454a53;line-height:1.9;letter-spacing:.08em}
 </style>
 </head>
 <body>
 <div class="wrap">
-
   <header>
     <h1>小六<span class="dot">壬</span></h1>
     <div class="sub">掌 中 神 课 · 日 用 寻 物</div>
@@ -216,6 +218,23 @@ footer{margin-top:26px;text-align:center;font-size:11px;color:#454a53;line-heigh
 </div>
 
 <script>
+/* ================= 安全存储（无痕模式兜底） ================= */
+const memStore={};
+const store={
+  get(k){
+    try{ const v=localStorage.getItem(k); if(v!==null) return v; }catch(e){}
+    return Object.prototype.hasOwnProperty.call(memStore,k)?memStore[k]:null;
+  },
+  set(k,v){
+    memStore[k]=v;
+    try{ localStorage.setItem(k,v); return true; }catch(e){ return false; }
+  },
+  del(k){
+    delete memStore[k];
+    try{ localStorage.removeItem(k); }catch(e){}
+  }
+};
+
 /* ================= 农历核心（1900–2100） ================= */
 const lunarInfo=[
 0x04bd8,0x04ae0,0x0a570,0x054d5,0x0d260,0x0d950,0x16554,0x056a0,0x09ad0,0x055d2,
@@ -656,15 +675,16 @@ const KEY='xlr_history_v1';
 
 function getHistory(){
   let list=[];
-  try{ list=JSON.parse(localStorage.getItem(KEY)||'[]'); }catch(e){ list=[]; }
+  try{ list=JSON.parse(store.get(KEY)||'[]'); }catch(e){ list=[]; }
+  if(!Array.isArray(list)) list=[];
   let changed=false;
   list=list.map((it,i)=>{
-    if(!it.id){ it.id='g'+it.t+'_'+i; changed=true; }
+    if(!it.id){ it.id='g'+(it.t||0)+'_'+i; changed=true; }
     if(!it.topic){ it.topic='general'; changed=true; }
     if(!Array.isArray(it.asks)){ it.asks=[]; changed=true; }
     return it;
   });
-  if(changed){ try{ localStorage.setItem(KEY,JSON.stringify(list)); }catch(e){} }
+  if(changed){ store.set(KEY,JSON.stringify(list)); }
   return list;
 }
 
@@ -672,7 +692,7 @@ function saveHistory(rec){
   const list=getHistory();
   const i=list.findIndex(x=>x.id===rec.id);
   if(i>=0) list[i]=rec; else list.unshift(rec);
-  try{ localStorage.setItem(KEY,JSON.stringify(list.slice(0,30))); }catch(e){}
+  store.set(KEY,JSON.stringify(list.slice(0,30)));
   renderHistory();
 }
 
@@ -712,7 +732,7 @@ $('topics').querySelectorAll('button').forEach(b=>{
   b.onclick=()=>{
     topic=b.dataset.t;
     syncTopicUI();
-    localStorage.setItem('xlr_topic',topic);
+    store.set('xlr_topic',topic);   // 已安全封装
     if(cur){
       cur.topic=topic;
       saveHistory(cur);
@@ -764,7 +784,7 @@ $('castBtn').onclick=()=>{
 
 $('clearBtn').onclick=()=>{
   if(confirm('清空全部起课记录？')){
-    localStorage.removeItem(KEY); renderHistory();
+    store.del(KEY); renderHistory();
   }
 };
 
@@ -776,7 +796,7 @@ $('quickGrid').innerHTML=PALACES.map(p=>
 
 /* 初始化 */
 (function init(){
-  const saved=localStorage.getItem('xlr_topic');
+  const saved=store.get('xlr_topic');
   if(saved&&TOPIC_META[saved]) topic=saved;
   syncTopicUI();
   refreshTime();

@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0d0e11">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="小六壬">
+<title>小六壬 · 掌中课</title>
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='192' height='192'%3E%3Crect width='192' height='192' rx='42' fill='%230d0e11'/%3E%3Ctext x='96' y='132' font-size='112' text-anchor='middle' fill='%23d0a94a' font-family='serif'%3E%E5%A3%AC%3C/text%3E%3C/svg%3E">
+<style>
+:root{
+  --bg:#0d0e11; --card:#181b21; --line:#2a2f38; --ink:#e9e3d4;
+  --dim:#8b8f99; --gold:#d0a94a; --gold2:#6b5520; --dimtxt:#cfc9ba;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);
+  font-family:"Songti SC","STSong","Noto Serif SC","Source Han Serif SC",serif;
+  -webkit-text-size-adjust:100%}
+body{min-height:100vh;background-image:radial-gradient(circle at 50% 0%,#1b1f27 0%,#0d0e11 55%);background-attachment:fixed}
+.wrap{max-width:520px;margin:0 auto;padding:calc(18px + env(safe-area-inset-top)) 16px calc(36px + env(safe-area-inset-bottom))}
+
+header{text-align:center;padding:6px 0 18px}
+h1{margin:0;font-size:22px;font-weight:400;letter-spacing:.5em;text-indent:.5em;color:#e8dfc8}
+h1 .dot{color:var(--gold)}
+.sub{margin-top:8px;font-size:12px;color:var(--dim);letter-spacing:.26em;text-indent:.26em}
+
+.topics{display:flex;gap:8px;overflow-x:auto;padding:2px 0 12px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.topics::-webkit-scrollbar{display:none}
+.topics button{flex:0 0 auto;padding:8px 16px;border-radius:999px;border:1px solid var(--line);
+  background:#14171c;color:var(--dim);font:inherit;font-size:13.5px;letter-spacing:.1em}
+.topics button.on{color:var(--gold);border-color:var(--gold2);background:rgba(208,169,74,.1)}
+
+.seg{display:flex;background:#14171c;border:1px solid var(--line);border-radius:13px;padding:4px;gap:4px}
+.seg button{flex:1;background:none;border:0;color:var(--dim);font:inherit;font-size:14px;padding:11px 0;border-radius:10px;letter-spacing:.1em}
+.seg button.on{background:linear-gradient(180deg,#2a2f38,#1e2229);color:var(--gold);box-shadow:inset 0 0 0 1px #3a4150}
+
+.panel{display:none;margin-top:14px}
+.panel.on{display:block}
+
+.info{background:#14171c;border:1px solid var(--line);border-radius:14px;padding:6px 14px}
+.info-row{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid #1e2229;font-size:14px}
+.info-row:last-child{border-bottom:0}
+.info-row span{color:var(--dim);font-size:12.5px;letter-spacing:.12em}
+.info-row b{font-weight:400;color:#ded6c2;letter-spacing:.04em}
+
+.nums{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+.nums input{width:100%;background:#14171c;border:1px solid var(--line);border-radius:13px;color:var(--ink);
+  font:inherit;font-size:21px;text-align:center;padding:15px 0;outline:none}
+.nums input:focus{border-color:var(--gold2);background:#191c22}
+.nums input::placeholder{color:#4a4f58;font-size:15px}
+.hint{margin-top:10px;font-size:12px;color:#6d727c;line-height:1.8}
+.link{color:var(--gold);border:0;background:none;font:inherit;font-size:12.5px;padding:0;text-decoration:underline;text-underline-offset:3px}
+
+.cast{width:100%;margin-top:16px;padding:17px;border-radius:15px;border:1px solid #6b5520;
+  background:linear-gradient(180deg,#3a2f14,#241d0c);color:var(--gold);
+  font:inherit;font-size:16px;letter-spacing:.45em;text-indent:.45em;
+  box-shadow:0 6px 22px rgba(0,0,0,.45)}
+.cast:active{transform:scale(.985);filter:brightness(1.15)}
+
+.triple{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+.mini{background:#15181d;border:1px solid var(--line);border-radius:14px;padding:12px 4px;text-align:center}
+.mini.good{border-color:#2e4a36;background:linear-gradient(180deg,#161d18,#141719)}
+.mini.bad{border-color:#4a2c2c;background:linear-gradient(180deg,#1e1717,#141719)}
+.mini-label{font-size:10.5px;color:var(--dim);letter-spacing:.22em}
+.mini-name{font-size:19px;margin:7px 0 5px;letter-spacing:.06em}
+.mini.good .mini-name{color:#8fc79b}
+.mini.bad .mini-name{color:#d98b86}
+.mini-tag{font-size:11px;color:#6d727c}
+
+.card{background:linear-gradient(180deg,#1a1d23,#15181d);border:1px solid var(--line);
+  border-radius:16px;padding:16px;margin-top:12px;animation:fade .45s ease both}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.main{position:relative;overflow:hidden;border-color:#5a4a22;background:linear-gradient(180deg,#221d10,#171510)}
+.main::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(circle at 88% -15%,rgba(208,169,74,.2),transparent 62%)}
+.main-name{font-size:34px;letter-spacing:.16em;text-indent:.16em;margin:8px 0 6px;position:relative;z-index:1}
+.main-name.good{color:#a9d8b2}
+.main-name.bad{color:#e09792}
+.main-sub{font-size:12.5px;color:#a99c78;letter-spacing:.14em;position:relative;z-index:1}
+.badge{display:inline-block;font-size:11.5px;padding:2px 11px;border-radius:999px;letter-spacing:.16em;position:relative;z-index:1}
+.badge.good{color:#8fc79b;border:1px solid #2e4a36;background:rgba(95,158,110,.1)}
+.badge.bad{color:#d98b86;border:1px solid #4a2c2c;background:rgba(193,80,74,.1)}
+.poem{border-left:2px solid var(--gold2);padding-left:12px;margin-top:14px;
+  color:#c9c2b0;font-size:13.5px;line-height:2;letter-spacing:.02em}
+
+.sec-label{font-size:11.5px;color:var(--gold);letter-spacing:.32em;margin-bottom:10px}
+.txt{font-size:14.5px;line-height:1.95;color:var(--dimtxt);margin:0;letter-spacing:.02em}
+.image-line{color:#a99c78;font-size:13.5px;line-height:1.85;padding-bottom:10px;border-bottom:1px dashed #262c34;margin-bottom:12px}
+.advice-line{margin-top:12px;color:#9aa3ae;font-size:13.5px;line-height:1.9}
+
+.flow-row{display:flex;align-items:center;gap:6px}
+.flow-cell{flex:1;text-align:center;background:#14171c;border:1px solid var(--line);border-radius:12px;padding:10px 3px}
+.flow-cell .k{display:block;font-size:10.5px;color:#6d727c;margin-bottom:4px}
+.flow-cell b{display:block;font-size:16px;font-weight:400}
+.flow-cell em{display:block;font-size:10.5px;color:#5d626c;font-style:normal;margin-top:3px}
+.flow-cell.good b{color:#8fc79b}
+.flow-cell.bad b{color:#d98b86}
+.arrow{color:#3d434d;font-size:16px}
+
+.findcard{border-color:#5a4a22;background:linear-gradient(180deg,#201b10,#161409)}
+.find-badge{display:inline-block;font-size:11.5px;color:var(--gold);border:1px solid var(--gold2);
+  background:rgba(208,169,74,.1);padding:2px 12px;border-radius:999px;margin-bottom:10px;letter-spacing:.14em}
+
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips button{background:#171b21;border:1px solid #2f3540;color:#b9b2a1;font:inherit;
+  font-size:13px;padding:9px 12px;border-radius:10px;letter-spacing:.02em}
+.chips button:active{background:#20262e;color:var(--gold)}
+.ask-row{display:flex;gap:8px;margin-top:12px}
+.ask-row input{flex:1;min-width:0;background:#14171c;border:1px solid var(--line);border-radius:12px;
+  padding:12px 14px;color:var(--ink);font:inherit;font-size:14px;outline:none}
+.ask-row input:focus{border-color:var(--gold2)}
+.ask-row input::placeholder{color:#4a4f58}
+.ask-row button{padding:0 20px;border-radius:12px;border:1px solid #6b5520;
+  background:linear-gradient(180deg,#3a2f14,#241d0c);color:var(--gold);font:inherit;font-size:14px}
+.ans{margin-top:16px;padding-top:14px;border-top:1px dashed #262c34;animation:fade .4s ease both}
+.ans-q{font-size:13px;color:#8b8f99;margin-bottom:9px;line-height:1.7}
+.ans-tag{display:inline-block;font-size:11px;color:var(--gold);border:1px solid #4a3d1c;
+  padding:1px 8px;border-radius:999px;margin-right:7px}
+.ans-topic{display:inline-block;font-size:10.5px;color:#7d8390;border:1px solid #2f3540;
+  border-radius:999px;padding:0 7px;margin-left:6px;vertical-align:middle}
+.ans-a{font-size:14.5px;line-height:1.95;color:var(--dimtxt)}
+.ans-flow{margin-top:9px;font-size:12.5px;color:#8a7a4e;line-height:1.8}
+.ans-empty{color:#4a4f58;font-size:13px;padding-top:14px}
+
+.res-meta{font-size:12px;color:#6d727c;letter-spacing:.06em;margin-top:18px;text-align:center}
+.h-title{display:flex;justify-content:space-between;align-items:center;margin-top:26px;margin-bottom:6px}
+.h-title span{font-size:11.5px;color:var(--gold);letter-spacing:.3em}
+.h-title button{background:none;border:0;color:#5d626c;font:inherit;font-size:12px}
+.h-list{background:#14171c;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.h-item{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;
+  border-bottom:1px solid #1e2229;font-size:13.5px;gap:10px}
+.h-item:last-child{border-bottom:0}
+.h-item:active{background:#191d23}
+.h-main{display:flex;flex-direction:column;gap:5px;min-width:0}
+.h-main .l{color:#ded6c2;letter-spacing:.06em}
+.h-main .s{font-size:11.5px;color:#6d727c;letter-spacing:.05em}
+.h-badge{display:inline-block;font-size:10.5px;color:var(--gold);border:1px solid #4a3d1c;
+  border-radius:999px;padding:0 7px;margin-left:6px;vertical-align:middle}
+.h-item .r{color:#5d626c;font-size:11.5px;flex:0 0 auto}
+.empty{padding:20px;text-align:center;color:#4a4f58;font-size:13px}
+
+.quick{margin-top:12px}
+.q-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px}
+.q-item{background:#14171c;border:1px solid var(--line);border-radius:12px;padding:11px 12px;
+  display:flex;justify-content:space-between;align-items:center}
+.q-item .n{font-size:15px;letter-spacing:.08em}
+.q-item .t{font-size:11.5px;color:#6d727c}
+.q-item.good .n{color:#8fc79b}
+.q-item.bad .n{color:#d98b86}
+
+footer{margin-top:26px;text-align:center;font-size:11px;color:#454a53;line-height:1.9;letter-spacing:.08em}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>小六<span class="dot">壬</span></h1>
+    <div class="sub">掌 中 神 课 · 日 用 寻 物</div>
+  </header>
+
+  <div class="topics" id="topics">
+    <button data-t="general" class="on">综合</button>
+    <button data-t="love">感情</button>
+    <button data-t="career">事业</button>
+    <button data-t="wealth">财运</button>
+    <button data-t="find">寻物</button>
+  </div>
+
+  <div class="seg">
+    <button id="tabTime" class="on">时辰起课</button>
+    <button id="tabNum">报数起课</button>
+  </div>
+
+  <div class="panel on" id="panelTime">
+    <div class="info">
+      <div class="info-row"><span>公 历</span><b id="iSolar">—</b></div>
+      <div class="info-row"><span>农 历</span><b id="iLunar">—</b></div>
+      <div class="info-row"><span>时 辰</span><b id="iHour">—</b></div>
+    </div>
+    <div class="hint">以当下农历月、日、时辰起课（二十三时后按次日计）。</div>
+  </div>
+
+  <div class="panel" id="panelNum">
+    <div class="nums">
+      <input id="n1" type="number" inputmode="numeric" placeholder="第一数" min="1" max="99">
+      <input id="n2" type="number" inputmode="numeric" placeholder="第二数" min="1" max="99">
+      <input id="n3" type="number" inputmode="numeric" placeholder="第三数" min="1" max="99">
+    </div>
+    <div class="hint">心中默念所问之事，随意报三个数（1–99），或
+      <button class="link" id="randBtn">随机取数</button>。</div>
+  </div>
+
+  <button class="cast" id="castBtn">起 课</button>
+
+  <div id="result"></div>
+
+  <div class="quick">
+    <div class="h-title"><span>六 宫 速 查</span></div>
+    <div class="q-grid" id="quickGrid"></div>
+  </div>
+
+  <div class="h-title">
+    <span>最 近 起 课</span>
+    <button id="clearBtn">清空</button>
+  </div>
+  <div class="h-list" id="history"></div>
+
+  <footer>
+    民间传统术数，取象比类，仅供参考 · 请勿沉迷<br>
+    单文件离线运行 · 数据仅存本机
+  </footer>
+</div>
+
+<script>
+/* ================= 农历核心（1900–2100） ================= */
+const lunarInfo=[
+0x04bd8,0x04ae0,0x0a570,0x054d5,0x0d260,0x0d950,0x16554,0x056a0,0x09ad0,0x055d2,
+0x04ae0,0x0a5b6,0x0a4d0,0x0d250,0x1d255,0x0b540,0x0d6a0,0x0ada2,0x095b0,0x14977,
+0x04970,0x0a4b0,0x0b4b5,0x06a50,0x06d40,0x1ab54,0x02b60,0x09570,0x052f2,0x04970,
+0x06566,0x0d4a0,0x0ea50,0x06e95,0x05ad0,0x02b60,0x186e3,0x092e0,0x1c8d7,0x0c950,
+0x0d4a0,0x1d8a6,0x0b550,0x056a0,0x1a5b4,0x025d0,0x092d0,0x0d2b2,0x0a950,0x0b557,
+0x06ca0,0x0b550,0x15355,0x04da0,0x0a5b0,0x14573,0x052b0,0x0a9a8,0x0e950,0x06aa0,
+0x0aea6,0x0ab50,0x04b60,0x0aae4,0x0a570,0x05260,0x0f263,0x0d950,0x05b57,0x056a0,
+0x096d0,0x04dd5,0x04ad0,0x0a4d0,0x0d4d4,0x0d250,0x0d558,0x0b540,0x0b6a0,0x195a6,
+0x095b0,0x049b0,0x0a974,0x0a4b0,0x0b27a,0x06a50,0x06d40,0x0af46,0x0ab60,0x09570,
+0x04af5,0x04970,0x064b0,0x074a3,0x0ea50,0x06b58,0x055c0,0x0ab60,0x096d5,0x092e0,
+0x0c960,0x0d954,0x0d4a0,0x0da50,0x07552,0x056a0,0x0abb7,0x025d0,0x092d0,0x0cab5,
+0x0a950,0x0b4a0,0x0baa4,0x0ad50,0x055d9,0x04ba0,0x0a5b0,0x15176,0x052b0,0x0a930,
+0x07954,0x06aa0,0x0ad50,0x05b52,0x04b60,0x0a6e6,0x0a4e0,0x0d260,0x0ea65,0x0d530,
+0x05aa0,0x076a3,0x096d0,0x04afb,0x04ad0,0x0a4d0,0x1d0b6,0x0d250,0x0d520,0x0dd45,
+0x0b5a0,0x056d0,0x055b2,0x049b0,0x0a577,0x0a4b0,0x0aa50,0x1b255,0x06d20,0x0ada0,
+0x14b63,0x09370,0x049f8,0x04970,0x064b0,0x168a6,0x0ea50,0x06b20,0x1a6c4,0x0aae0,
+0x0a2e0,0x0d2e3,0x0c960,0x0d557,0x0d4a0,0x0da50,0x05d55,0x056a0,0x0a6d0,0x055d4,
+0x052d0,0x0a9b8,0x0a950,0x0b4a0,0x0b6a6,0x0ad50,0x055a0,0x0aba4,0x0a5b0,0x052b0,
+0x0b273,0x06930,0x07337,0x06aa0,0x0ad50,0x14b55,0x04b60,0x0a570,0x054e4,0x0d160,
+0x0e968,0x0d520,0x0daa0,0x16aa6,0x056d0,0x04ae0,0x0a9d4,0x0a2d0,0x0d150,0x0f252,
+0x0d520];
+
+function leapMonth(y){return lunarInfo[y-1900]&0xf}
+function leapDays(y){return leapMonth(y)?((lunarInfo[y-1900]&0x10000)?30:29):0}
+function monthDays(y,m){return (lunarInfo[y-1900]&(0x10000>>m))?30:29}
+function lYearDays(y){
+  let sum=348;
+  for(let i=0x8000;i>0x8;i>>=1){ if(lunarInfo[y-1900]&i) sum++; }
+  return sum+leapDays(y);
+}
+function solar2lunar(y,m,d){
+  let offset=(Date.UTC(y,m-1,d)-Date.UTC(1900,0,31))/86400000;
+  let i,temp=0,lunarYear=1900;
+  for(i=1900;i<2101&&offset>0;i++){ temp=lYearDays(i); offset-=temp; }
+  if(offset<0){ offset+=temp; i--; }
+  lunarYear=i;
+  const leap=leapMonth(lunarYear);
+  let isLeap=false;
+  for(i=1;i<13&&offset>0;i++){
+    if(leap>0&&i===leap+1&&!isLeap){ --i; isLeap=true; temp=leapDays(lunarYear); }
+    else{ temp=monthDays(lunarYear,i); }
+    if(isLeap&&i===leap+1) isLeap=false;
+    offset-=temp;
+  }
+  if(offset===0&&leap>0&&i===leap+1){
+    if(isLeap){ isLeap=false; } else { isLeap=true; --i; }
+  }
+  if(offset<0){ offset+=temp; --i; }
+  return {y:lunarYear,m:i,d:offset+1,isLeap};
+}
+
+/* ================= 六宫数据 ================= */
+const PALACES=[
+{
+  name:'大安', luck:'吉', luckType:'good', wuxing:'木', god:'青龙', nums:'1 · 5 · 7',
+  short:'安稳守成', image:'静守之象，如老树盘根，安稳不动，事多循原路而行。',
+  poem:'大安事事昌，求财在坤方；失物去不远，宅舍保安康；行人身未动，病者主无妨；将军回田野，仔细好推详。',
+  general:'主静、主稳，事多守成。凡事不急不躁，按部就班即安。谋事可成但需时日，求财有而不丰，宜守旧业不宜开新局。行人未动，消息稍迟；病者无妨，调养即安；官讼宜和解，不宜争强。',
+  advice:'以守为攻，按原计划缓进；不必另起炉灶，也不必急着要一个答案。',
+  time:'1、5、7 日内；丑、寅、卯日或时',
+  love:{read:'感情安稳平顺，无大波折，也少有惊喜。多为日久生情、相处踏实之局，适合慢慢养。若问新缘，来得缓，多由熟人引荐。',cont:'可以继续，但要慢。此卦主静守，保持现状、稳稳加深最宜；若急着逼对方表态，反会打破这份安稳。',act:'不必主动出击，稍作示好即可。过多试探反而扰局，让对方自然靠近更佳。',heart:'对方心里是安的，对你印象不差，但态度偏被动、重实际，属「不讨厌、也不着急」的状态。',when:'一至两周内有转机，多在丑、寅、卯日，或有长辈、熟人从中说话时。'},
+  career:{read:'事业平稳，宜守成不宜开拓。现有岗位、现有项目可稳中有进，新计划则容易一拖再拖。',cont:'宜坚持，不宜轻动。此时跳槽、转行多不利，守住位置把手上事做扎实，更见成效。',people:'贵人在身边，多是年长同事、老上司或家中长辈。阻力不大，只是进展偏慢。',when:'一至两月内见分晓，寅、卯月日有消息。'},
+  wealth:{read:'财有小得，不求自来。正财稳，偏财弱，宜守旧业、稳健理财。',get:'能得，但数目不大，多为应得之财、旧账回收、工资奖金一类。',way:'宜向东、东北方求财；宜守成、宜长线，不宜投机，不宜放贷。',when:'一、五、七日，或寅卯日有进账。',loss:'破耗不大，最多是计划外的小支出，留个余量即可。'},
+  find:{level:'易 寻',trend:'物未远走，可寻回，多半就静静躺在原处没动。',where:'家中或最后停留之处，静置未动，或被衣被、书本、箱柜压盖。方位偏东、东北，宜往低处、木器、书架、床下、衣物之间细找。',when:'一、五、七日，或丑、寅、卯日时有信。',who:'问家中长辈或年长女性，多半知情。'}
+},
+{
+  name:'留连', luck:'凶', luckType:'bad', wuxing:'土', god:'螣蛇', nums:'2 · 8 · 10',
+  short:'牵缠反复', image:'藤蔓缠身之象，进退皆有牵绊，事多反复，急则愈乱。',
+  poem:'留连事难成，求谋日未明；官事只宜缓，去者未回程；失物南方见，急讨方称心；更须防口舌，人口且平平。',
+  general:'主牵缠，事多反复。谋而未决，求而未得，宜缓不宜急。求财迟得，行人未归，官事宜托人转圜。凡事总多一层纠缠，需耐心周旋，不可强求硬闯。',
+  advice:'宜缓不宜急，先理清纠缠的线头，再谈下一步；强求必生反复。',
+  time:'2、8、10 日；辰、戌、丑、未日或时',
+  love:{read:'感情牵缠，藕断丝连。多是反复不定、欲断难断之局，或对方态度暧昧、忽冷忽热，让人猜不透。',cont:'暂不宜急着推进。此卦主纠缠，越急越乱；先弄清彼此的心结，缓一缓再看。',act:'不宜贸然主动。此时出击易被对方含糊带过，反倒耗了心气，先观察其真实态度。',heart:'对方心里犹豫未定，牵挂你却又下不了决心，或有旧人旧事牵扯，态度含混不清。',when:'拖得较久，二、八、十日或辰戌丑未日；短期内难有明确答复。'},
+  career:{read:'事业多阻碍，事情拖而不决，合作易反复，说好的事常有变。',cont:'暂宜守，不宜动。此时跳槽不过是换个地方继续纠缠，不如先把手上的结解开。',people:'易遇推诿之人、口惠而实不至者。真能帮你的是老关系、旧同事，宜私下托人。',when:'拖延较久，二至三月，辰戌丑未月日方见松动。'},
+  wealth:{read:'财来迟，求之费力。有被拖欠、套牢之象，账面上的钱一时动不了。',get:'难得，或得而迟缓，多需反复催讨才能到手。',way:'宜南方或四隅，宜托人、宜清旧账，切忌急进与借贷。',when:'二、八、十日，或辰戌丑未日。',loss:'防款项被拖、押金难退，事先把话说清，别碍于情面。'},
+  find:{level:'难 寻',trend:'物已被移动，或被人暂借未还，短期难见，费些周折方得。',where:'隐蔽处、角落、柜底、杂物堆，或近水潮湿之地。方位偏南、四隅，宜搬开东西细找。',when:'二、八、十日，或辰戌丑未日方有音信。',who:'宜托熟人打听、反复追索，自己去问往往问不出。'}
+},
+{
+  name:'速喜', luck:'吉', luckType:'good', wuxing:'火', god:'朱雀', nums:'3 · 6 · 9',
+  short:'快速有喜', image:'火起风生之象，来得快，去得也快，贵在当机立断。',
+  poem:'速喜喜来临，求财向南行；失物申未午，逢人路上寻；官事有福德，病者无祸侵；田宅六畜吉，行人有信音。',
+  general:'主快速，喜讯将至。事有转机，动中得利，宜速不宜迟。求财向南行，谋事多见成，行人即至，消息将到。唯喜中带急，切勿因快而疏漏。',
+  advice:'抓紧时机，速战速决；机会就在眼前，一拖就凉。',
+  time:'3、6、9 日；即日或巳、午、未时',
+  love:{read:'感情来得快，多是一见投缘、迅速升温之局，喜讯将至，进展超出预期。',cont:'可以积极推进，宜速不宜缓。趁热打铁最宜；但防来得急去得急，关键的话要一次说透。',act:'宜主动，且越快越好。此时开口、约见、表态都容易得到正面回应。',heart:'对方心里是热的，好感明显，态度主动，乐意回应你的靠近。',when:'很快，三、六、九日，或即日、巳午未时便有消息。'},
+  career:{read:'事业有喜，进展迅速，多有好消息、好机会找上门，宜主动争取。',cont:'宜进不宜守。此时行动最有利，有新机会当抓，犹豫即失。',people:'贵人多为能说会道、行动利落之人，或在南方、在热闹场合结识。',when:'三、六、九日内，巳午未日有时即有回音。'},
+  wealth:{read:'财来得快，动中得财，多与奔波、交易、南方有关。',get:'可得，且来得快，但数额有限，宜见好就收。',way:'宜南方、宜走动、宜快进快出，忌贪多恋战。',when:'三、六、九日，巳午未日有进。',loss:'破耗来得急，多是冲动消费或临时支出，出手前缓一缓。'},
+  find:{level:'易 寻',trend:'可寻回，且很快，多半已有人拾得。',where:'南方，明处、路上、车上、店中或人来人往之地，问一声常有人应。',when:'即日或三、六、九日，巳午未时。',who:'问路人、店家、同行者，多半有人见过。'}
+},
+{
+  name:'赤口', luck:'凶', luckType:'bad', wuxing:'金', god:'白虎', nums:'4 · 7 · 10',
+  short:'口舌争执', image:'白虎当门之象，主口舌、争执、破损，一言不合便生是非。',
+  poem:'赤口主口舌，官非切要防；失物急去寻，行人有惊慌；鸡犬多作怪，病者出西方；更须防咒诅，恐怕染瘟殃。',
+  general:'主口舌，防争执。事多阻滞，易起争端，谋事宜退让，不宜强出头。求财防破耗，官非宜避，行人路上有惊。忍一时则安，争一句则乱。',
+  advice:'忍让为先，避开口舌；凡事宜留证据，不必争一时之气。',
+  time:'4、7、10 日；申、酉日或时',
+  love:{read:'感情多口角，常因一句话起争执。或有第三方介入、彼此猜疑之象，气氛偏紧。',cont:'不宜硬推。此卦主口舌，越争越远；先降温、少说多做，等气头过了再谈。',act:'暂不宜主动，尤其别在争执后马上找对方。冷两日、递个台阶，比急着解释有用。',heart:'对方心里有气，或有不满没说出口，态度偏硬、防备心重。',when:'四、七、十日或申酉日；争执多在近几日，过后方缓。'},
+  career:{read:'事业多是非，易与同事、上级起摩擦，宜低调行事，少表态。',cont:'宜守不宜争。此时强出头必招是非，做好本分、避开口舌最要紧。',people:'阻力来自口舌之人、竞争者，或西方、金属相关之人。贵人少，宜自守。',when:'四、七、十日，申酉日多有事端或决断。'},
+  wealth:{read:'财有破损，防口舌破财、意外支出，或为赔偿、罚款一类所耗。',get:'难得好，且易因争讼、赔偿而失；宁可少赚也别扯进是非。',way:'忌西方、忌与人合伙争利；宜守财、宜白纸黑字。',when:'四、七、十日申酉日，防破耗。',loss:'破耗明显，多与争执、赔偿、冲动有关，能避则避。'},
+  find:{level:'急寻可得',trend:'急寻尚可，迟则难回；或已被人取走，需当面问明。',where:'西方、金属器物旁、厨房、门边、路口、车中，多是匆忙间落下的。',when:'四、七、十日，申酉日；越早越好。',who:'须当面问清，切忌因寻物起口角，反把事情闹僵。'}
+},
+{
+  name:'小吉', luck:'吉', luckType:'good', wuxing:'木', god:'六合', nums:'1 · 5 · 7',
+  short:'和合小成', image:'六合和顺之象，小事得成，凡事有人相助，和则两利。',
+  poem:'小吉最吉昌，路上好商量；阴人来报喜，失物在坤方；行人立便至，交关甚是强；凡事皆和合，病者祷上苍。',
+  general:'主和合，小事得成。凡事顺遂，有人相助，谋事和合而济。求财小得，行人有信，交易买卖皆宜。虽为小吉，积小可成大。',
+  advice:'多与人合，借力而行；事缓则圆，不必独扛。',
+  time:'1、5、7 日；当日或丑、辰、未时',
+  love:{read:'感情和合，相处融洽，常有人从中撮合或说好话，气氛温和。',cont:'可以继续，且宜借力。多与对方共同的朋友、长辈能帮上忙，顺水推舟即成。',act:'宜主动，但走「和」的路子：托朋友组个局、找个由头见面，比直接表白更顺。',heart:'对方心里是愿意的，态度温和、好商量，只是还欠一个合适的契机。',when:'一、五、七日，或当日、丑辰未时，多有和合之机。'},
+  career:{read:'事业和顺，合作顺利，多有小成；人缘是这段时间最大的助力。',cont:'宜进宜合。与人合作、结伴推进最有利，单打独斗反不如借力。',people:'贵人多、人缘好，尤以女性、熟人为助，西南方有人相帮。',when:'一、五、七日，丑辰未日有成。'},
+  wealth:{read:'财有小得，和气生财，多来自合作与人情往来。',get:'可得，数目不大但来得顺，多是合作、中介、人情之财。',way:'宜西南方、宜合宜众，忌独断、忌贪大。',when:'一、五、七日，或当日有进。',loss:'破耗轻微，多是请客应酬一类，花得值。'},
+  find:{level:'易 寻',trend:'易寻回，且有人知情相助，一问便有着落。',where:'西南方（坤位），家中箱柜、衣物、床铺、厨房、阴凉处。',when:'当日或一、五、七日，丑辰未时。',who:'问女性或熟人，多能一问即得。'}
+},
+{
+  name:'空亡', luck:'凶', luckType:'bad', wuxing:'土', god:'勾陈', nums:'3 · 6 · 9',
+  short:'落空虚耗', image:'落空之象，如握沙在手，愈用力愈空，虚实难凭。',
+  poem:'空亡事不长，阴人多乖张；求财无利益，行人有灾殃；失物寻不见，官事有刑伤；病人逢暗鬼，禳解保安康。',
+  general:'主落空，虚而不实。事多不成，谋而落空，求财无利，行人有阻。宜止宜守，另图他日，不可强为。心中所盼，多半成空，须早作打算。',
+  advice:'及早止损，另作打算；已投入的不必恋战，留力给下一程。',
+  time:'3、6、9 日；或无期',
+  love:{read:'感情落空，多是单方用力、有名无实之局，或对方心已不在，只剩惯性。',cont:'不宜再勉强。此卦主空，越投入越空；先收回心力，看清对方真实态度再定进退。',act:'不宜主动，主动多半换来敷衍。把注意力放回自己身上，反而看得更清。',heart:'对方心里其实是空的，或另有打算，态度敷衍，口惠而实不至。',when:'三、六、九日或无期；短期难有实质进展，久拖更耗。'},
+  career:{read:'事业落空，计划易成空，努力难见回报，多有空头许诺。',cont:'宜止不宜进。此路恐难走通，宜早作备选，不宜再押重注。',people:'少贵人，多空头承诺。求人不如求己，凡事先留退路。',when:'三、六、九日，或无期；宜作两手准备。'},
+  wealth:{read:'财空，求财无利，防虚耗、被骗；账面好看而到手难。',get:'难得，或得而复失，投资尤易落空。',way:'宜守财、宜止；忌投资、忌借贷、忌轻信高回报。',when:'三、六、九日，或无期。',loss:'破耗难防，多因轻信与贪快，守住本金最要紧。'},
+  find:{level:'难 得',trend:'恐难寻，或已损毁、被人带走，寻之费力而少获。',where:'空处暗处，下水道、垃圾、空地、久无人处、高处缝隙。',when:'三、六、九日，或无期。',who:'问人多空言，宜自寻，或干脆另置新物。'}
+}];
+
+const HOURS=['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+const CN_NUM=['一','二','三','四','五','六','七','八','九','十'];
+
+const TOPIC_META={
+  general:{label:'综合',chips:['此事整体走势如何','何时能有结果','该进还是该退','有什么要提防的']},
+  love:{label:'感情',chips:['这段感情怎么样','该不该继续发展','对方心里怎么想','什么时候有转机','要不要主动一点']},
+  career:{label:'事业',chips:['这次机会能不能成','该不该坚持或跳槽','有没有贵人相助','何时见分晓']},
+  wealth:{label:'财运',chips:['这笔财能不能得','从哪个方向求财','何时有进账','会不会破财']},
+  find:{label:'寻物',chips:['东西还能找回吗','大概在什么地方','什么时候能找到','该找谁帮忙']}
+};
+
+/* ================= 工具 ================= */
+const $=id=>document.getElementById(id);
+const pad=n=>String(n).padStart(2,'0');
+const mod=(n,m)=>((n%m)+m)%m;
+const esc=s=>String(s).replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+function lunarMonthName(m,isLeap){
+  const n=['正','二','三','四','五','六','七','八','九','十','冬','腊'];
+  return (isLeap?'闰':'')+n[m-1]+'月';
+}
+function lunarDayName(d){
+  if(d===10) return '初十';
+  if(d===20) return '二十';
+  if(d===30) return '三十';
+  const t=Math.floor(d/10), o=d%10;
+  if(t===0) return '初'+CN_NUM[o-1];
+  if(t===1) return '十'+CN_NUM[o-1];
+  if(t===2) return '廿'+CN_NUM[o-1];
+  return '三'+CN_NUM[o-1];
+}
+function ganzhiYear(y){
+  const g='甲乙丙丁戊己庚辛壬癸', z='子丑寅卯辰巳午未申酉戌亥';
+  return g[mod(y-4,10)]+z[mod(y-4,12)];
+}
+
+/* ================= 起课 ================= */
+let mode='time', topic='general', cur=null;
+
+function nowInfo(){
+  const now=new Date();
+  const y=now.getFullYear(), m=now.getMonth()+1, d=now.getDate(), h=now.getHours(), mi=now.getMinutes();
+  let base=new Date(y,m-1,d), shifted=false;
+  if(h>=23){ base=new Date(y,m-1,d+1); shifted=true; }
+  const L=solar2lunar(base.getFullYear(),base.getMonth()+1,base.getDate());
+  const hi=Math.floor(mod(h+1,24)/2);
+  return {
+    L, hi, shifted,
+    dateStr:`${y}-${pad(m)}-${pad(d)} ${pad(h)}:${pad(mi)}`,
+    lunarStr:`${ganzhiYear(L.y)}年 ${lunarMonthName(L.m,L.isLeap)}${lunarDayName(L.d)}`,
+    hourStr:`${HOURS[hi]}时`
+  };
+}
+function refreshTime(){
+  const t=nowInfo();
+  $('iSolar').textContent=t.dateStr;
+  $('iLunar').textContent=t.lunarStr;
+  $('iHour').textContent=t.hourStr+(t.shifted?'（晚子）':'');
+}
+function castByTime(){
+  const t=nowInfo();
+  const mi=mod(t.L.m-1,6);
+  const di=mod(mi+t.L.d-1,6);
+  const ti=mod(di+t.hi,6);
+  return {mi,di,ti,meta:`${t.dateStr} · 农历${lunarMonthName(t.L.m,t.L.isLeap)}${lunarDayName(t.L.d)} ${t.hourStr} · 时辰起课`};
+}
+function castByNums(a,b,c){
+  const i1=mod(a-1,6), i2=mod(i1+b-1,6), i3=mod(i2+c-1,6);
+  return {mi:i1,di:i2,ti:i3,meta:`报数 ${a} · ${b} · ${c} · 报数起课`};
+}
+
+/* ================= 断语 ================= */
+const sc=p=>p.luckType==='good'?1:-1;
+
+function overallText(total){
+  if(total===3) return '三宫皆吉，诸事顺遂。所求多能如愿，宜乘时而进，不必迟疑。';
+  if(total===1) return '两吉一凶，虽有阻隔，终归于吉。宜稳中求进，勿因小挫而退。';
+  if(total===-1) return '一吉两凶，吉在末而凶在前。事有波折，宜守正待时，急则生变。';
+  return '三宫多凶，事恐落空。宜止宜守，另图他日；若已发动，及早收手为上。';
+}
+
+function flowLine(m,d,t){
+  const g=p=>p.luckType==='good';
+  const a=g(m), b=g(d), c=g(t);
+  if(a&&b&&c) return '三宫皆吉，起、中、成一路顺遂，放手去做即可。';
+  if(a&&b&&!c) return '起与中都顺，唯独结果落空，最忌功亏一篑、临门松手。';
+  if(a&&!b&&c) return '起初顺利，中途生阻，终能回吉；忍过这一程便好。';
+  if(!a&&b&&c) return '开局不顺，中后转吉，先难后易，宜熬过开头这段。';
+  if(a&&!b&&!c) return '开局尚可，中途转折，终不如意，宜早作打算、留条退路。';
+  if(!a&&b&&!c) return '中段有转机，奈何结果仍空，宜见好就收，勿再恋战。';
+  if(!a&&!b&&c) return '前段多阻，末了翻盘，属险中得吉，需撑到最后才见分晓。';
+  return '三宫皆凶，起、中、成皆不得力，宜止宜守，另图他日。';
+}
+
+/* ================= 渲染 ================= */
+function mini(label,p){
+  return `<div class="mini ${p.luckType}">
+    <div class="mini-label">${label}</div>
+    <div class="mini-name">${p.name}</div>
+    <div class="mini-tag">${p.luck}</div>
+  </div>`;
+}
+function flowCell(k,p,sub){
+  return `<div class="flow-cell ${p.luckType}">
+    <span class="k">${k}</span><b>${p.name}</b><em>${sub}</em>
+  </div>`;
+}
+function syncTopicUI(){
+  $('topics').querySelectorAll('button').forEach(b=>{
+    b.classList.toggle('on', b.dataset.t===topic);
+  });
+}
+
+function renderResult(r){
+  cur=r;
+  topic=r.topic||topic;
+  syncTopicUI();
+
+  const m=PALACES[r.mi], d=PALACES[r.di], t=PALACES[r.ti];
+  const total=sc(m)+sc(d)+sc(t);
+
+  const headCard=`
+  <div class="card main">
+    <span class="badge ${t.luckType}">${t.luck} 课</span>
+    <div class="main-name ${t.luckType}">${t.name}</div>
+    <div class="main-sub">${t.god} · 五行属${t.wuxing} · 主数 ${t.nums}</div>
+    <div class="poem">${t.poem}</div>
+  </div>`;
+
+  const flowCard=`
+  <div class="card">
+    <div class="sec-label">◆ 三 宫 走 势</div>
+    <div class="flow-row">
+      ${flowCell('起',m,'事之始')}<div class="arrow">›</div>
+      ${flowCell('中',d,'事之过程')}<div class="arrow">›</div>
+      ${flowCell('成',t,'事之结果')}
+    </div>
+    <p class="txt" style="margin-top:14px">${flowLine(m,d,t)}</p>
+  </div>`;
+
+  const findCard=`
+  <div class="card findcard">
+    <div class="sec-label">◆ 寻 物</div>
+    <div class="find-badge">${t.find.level}</div>
+    <p class="txt">${t.find.trend}</p>
+    <p class="txt" style="margin-top:10px;color:#9aa3ae;font-size:13.5px;">方位：${t.find.where}</p>
+  </div>`;
+
+  const timeCard=`
+  <div class="card">
+    <div class="sec-label">◆ 应 期</div>
+    <p class="txt">${t.time}</p>
+  </div>`;
+
+  const overCard=`
+  <div class="card">
+    <div class="sec-label">◆ 总 断</div>
+    <p class="txt">${overallText(total)}</p>
+    <p class="txt" style="margin-top:10px;color:#7b8089;font-size:13px;">
+    月宫主事之始，日宫主事之中，时宫主事之成；上以时宫为主，三宫合参。</p>
+  </div>`;
+
+  const askCard=`
+  <div class="card">
+    <div class="sec-label">◆ 追 问 · ${TOPIC_META[topic].label}</div>
+    <div class="chips" id="chips"></div>
+    <div class="ask-row">
+      <input id="askInput" placeholder="还想问什么，写在这里…">
+      <button id="askBtn">问</button>
+    </div>
+    <div id="answers"></div>
+  </div>`;
+
+  const showFind=(topic==='general'||topic==='find');
+
+  $('result').innerHTML=
+    `<div class="res-meta">${r.meta}</div>`+
+    `<div class="triple">${mini('月宫',m)}${mini('日宫',d)}${mini('时宫',t)}</div>`+
+    headCard+
+    `<div id="detailSlot"></div>`+
+    flowCard+
+    (showFind?findCard:'')+
+    timeCard+overCard+askCard;
+
+  renderDetail(t);
+  bindAsk();
+  renderAsks();
+}
+
+function renderDetail(t){
+  const slot=$('detailSlot');
+  if(!slot) return;
+  let body='', tail='';
+  if(topic==='general'){
+    body=t.general;
+    tail=`【宜】${t.advice}`;
+  }else if(topic==='find'){
+    body=t.find.where;
+    tail=`【寻法】${t.find.who}`;
+  }else{
+    body=t[topic].read;
+    tail=`【要点】${t[topic].cont||t[topic].get||''}`;
+  }
+  slot.innerHTML=`
+  <div class="card">
+    <div class="sec-label">◆ 详 解 · ${TOPIC_META[topic].label}</div>
+    <p class="txt image-line">${t.image}</p>
+    <p class="txt">${body}</p>
+    <p class="txt advice-line">${tail}</p>
+  </div>`;
+}
+
+/* ================= 追问引擎 ================= */
+function detectIntent(q){
+  const s=q;
+  if(topic==='find'){
+    if(/找回|找得回|还能找|能不能找/.test(s)) return 'found';
+    if(/谁|帮忙|问谁/.test(s)) return 'who';
+    if(/什么时候|何时|多久|几天/.test(s)) return 'when';
+    if(/哪里|哪儿|什么地方|位置|在哪/.test(s)) return 'where';
+    return 'trend';
+  }
+  if(topic==='wealth'){
+    if(/破财|亏|损失|被骗/.test(s)) return 'loss';
+    if(/方向|方位|哪里|哪个方向|怎么做|如何求/.test(s)) return 'way';
+    if(/什么时候|何时|多久/.test(s)) return 'when';
+    if(/能不能得|能否得|得不得|能不能赚|能不能/.test(s)) return 'get';
+    return 'read';
+  }
+  if(topic==='love'){
+    if(/主动|表白|开口|联系|约|追/.test(s)) return 'act';
+    if(/对方|他|她|心里|想法|态度|心意|喜欢/.test(s)) return 'heart';
+    if(/继续|发展|该不该|要不要|放弃|分手|复合|和好/.test(s)) return 'cont';
+    if(/什么时候|何时|多久|转机/.test(s)) return 'when';
+    return 'read';
+  }
+  if(topic==='career'){
+    if(/贵人|帮忙|谁|人脉|同事|上司|领导/.test(s)) return 'people';
+    if(/继续|坚持|跳槽|辞职|换工作|该不该|要不要/.test(s)) return 'cont';
+    if(/什么时候|何时|多久|见分晓/.test(s)) return 'when';
+    return 'read';
+  }
+  if(/什么时候|何时|多久|应期/.test(s)) return 'when';
+  if(/注意|提防|小心|防|避|忌/.test(s)) return 'advice';
+  if(/进还是退|进退|该不该|要不要|继续/.test(s)) return 'advice';
+  return 'read';
+}
+
+function makeAnswer(intent){
+  const p=PALACES[cur.ti];
+  if(topic==='find'){
+    return intent==='who'  ? p.find.who
+         : intent==='when' ? p.find.when
+         : intent==='where'? p.find.where
+         : p.find.trend;
+  }
+  if(topic==='love'||topic==='career'||topic==='wealth'){
+    const box=p[topic];
+    return box[intent]||box.read||p.general;
+  }
+  return intent==='when' ? p.time : intent==='advice' ? p.advice : p.general;
+}
+
+function renderAsks(){
+  const box=$('answers');
+  if(!box) return;
+  if(!cur||!cur.asks||!cur.asks.length){
+    box.innerHTML='<div class="ans-empty">此卦暂无追问记录</div>';
+    return;
+  }
+  const p=PALACES[cur.ti], m=PALACES[cur.mi], d=PALACES[cur.di];
+  box.innerHTML=cur.asks.map(it=>{
+    const tp=TOPIC_META[it.topic]?TOPIC_META[it.topic].label:'-';
+    return `<div class="ans">
+      <div class="ans-q">问：${esc(it.q)}<span class="ans-topic">${tp}</span></div>
+      <div class="ans-a"><span class="ans-tag">${p.name}</span>${it.a}</div>
+      <div class="ans-flow">走势：${flowLine(m,d,p)}</div>
+    </div>`;
+  }).join('');
+}
+
+function ask(text){
+  if(!cur) return;
+  const q=(text||'').trim();
+  if(!q) return;
+  const intent=detectIntent(q);
+  const a=makeAnswer(intent);
+  if(!Array.isArray(cur.asks)) cur.asks=[];
+  cur.asks.push({q:q,a:a,intent:intent,topic:topic,t:Date.now()});
+  saveHistory(cur);
+  renderAsks();
+  const box=$('answers');
+  if(box.lastElementChild) box.lastElementChild.scrollIntoView({behavior:'smooth',block:'center'});
+}
+
+function bindAsk(){
+  const chips=$('chips');
+  chips.innerHTML=TOPIC_META[topic].chips
+    .map(c=>`<button data-q="${c}">${c}</button>`).join('');
+  chips.querySelectorAll('button').forEach(b=>{
+    b.onclick=()=>ask(b.dataset.q);
+  });
+  const inp=$('askInput'), btn=$('askBtn');
+  btn.onclick=()=>{ ask(inp.value); inp.value=''; };
+  inp.onkeydown=e=>{ if(e.key==='Enter'){ e.preventDefault(); ask(inp.value); inp.value=''; } };
+}
+
+/* ================= 历史（一卦一档） ================= */
+const KEY='xlr_history_v1';
+
+function getHistory(){
+  let list=[];
+  try{ list=JSON.parse(localStorage.getItem(KEY)||'[]'); }catch(e){ list=[]; }
+  let changed=false;
+  list=list.map((it,i)=>{
+    if(!it.id){ it.id='g'+it.t+'_'+i; changed=true; }
+    if(!it.topic){ it.topic='general'; changed=true; }
+    if(!Array.isArray(it.asks)){ it.asks=[]; changed=true; }
+    return it;
+  });
+  if(changed){ try{ localStorage.setItem(KEY,JSON.stringify(list)); }catch(e){} }
+  return list;
+}
+
+function saveHistory(rec){
+  const list=getHistory();
+  const i=list.findIndex(x=>x.id===rec.id);
+  if(i>=0) list[i]=rec; else list.unshift(rec);
+  try{ localStorage.setItem(KEY,JSON.stringify(list.slice(0,30))); }catch(e){}
+  renderHistory();
+}
+
+function renderHistory(){
+  const list=getHistory();
+  const el=$('history');
+  if(!list.length){ el.innerHTML='<div class="empty">尚无记录</div>'; return; }
+  el.innerHTML=list.map((it,i)=>{
+    const m=PALACES[it.mi], d=PALACES[it.di], t=PALACES[it.ti];
+    const date=new Date(it.t||Date.now());
+    const ts=`${pad(date.getMonth()+1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
+    const tp=TOPIC_META[it.topic]?TOPIC_META[it.topic].label:'综合';
+    const n=it.asks?it.asks.length:0;
+    return `<div class="h-item" data-i="${i}">
+      <div class="h-main">
+        <span class="l">${m.name} · ${d.name} · <b style="color:#d0a94a;font-weight:400">${t.name}</b></span>
+        <span class="s">${tp}方向${n?`<span class="h-badge">追问 ${n}</span>`:''}</span>
+      </div>
+      <span class="r">${ts}</span>
+    </div>`;
+  }).join('');
+  el.querySelectorAll('.h-item').forEach(node=>{
+    node.onclick=()=>{
+      const it=getHistory()[+node.dataset.i];
+      if(!it) return;
+      renderResult({
+        id:it.id, mi:it.mi, di:it.di, ti:it.ti,
+        meta:it.meta, topic:it.topic, asks:it.asks.slice(), t:it.t
+      });
+      window.scrollTo({top:0,behavior:'smooth'});
+    };
+  });
+}
+
+/* ================= 交互 ================= */
+$('topics').querySelectorAll('button').forEach(b=>{
+  b.onclick=()=>{
+    topic=b.dataset.t;
+    syncTopicUI();
+    localStorage.setItem('xlr_topic',topic);
+    if(cur){
+      cur.topic=topic;
+      saveHistory(cur);
+      renderResult(cur);
+    }
+  };
+});
+
+$('tabTime').onclick=()=>{
+  mode='time';
+  $('tabTime').classList.add('on'); $('tabNum').classList.remove('on');
+  $('panelTime').classList.add('on'); $('panelNum').classList.remove('on');
+  refreshTime();
+};
+$('tabNum').onclick=()=>{
+  mode='num';
+  $('tabNum').classList.add('on'); $('tabTime').classList.remove('on');
+  $('panelNum').classList.add('on'); $('panelTime').classList.remove('on');
+};
+$('randBtn').onclick=()=>{
+  ['n1','n2','n3'].forEach(id=>{ $(id).value=1+Math.floor(Math.random()*99); });
+};
+
+function newId(){ return 'r'+Date.now()+Math.floor(Math.random()*900+100); }
+
+$('castBtn').onclick=()=>{
+  if(navigator.vibrate) navigator.vibrate(12);
+  let base;
+  if(mode==='time'){
+    base=castByTime();
+  }else{
+    let a=parseInt($('n1').value,10), b=parseInt($('n2').value,10), c=parseInt($('n3').value,10);
+    if(!a||!b||!c){
+      ['n1','n2','n3'].forEach(id=>{ if(!$(id).value) $(id).value=1+Math.floor(Math.random()*99); });
+      a=parseInt($('n1').value,10); b=parseInt($('n2').value,10); c=parseInt($('n3').value,10);
+    }
+    a=Math.min(99,Math.max(1,a)); b=Math.min(99,Math.max(1,b)); c=Math.min(99,Math.max(1,c));
+    $('n1').value=a; $('n2').value=b; $('n3').value=c;
+    base=castByNums(a,b,c);
+  }
+  const rec={
+    id:newId(), mi:base.mi, di:base.di, ti:base.ti,
+    meta:base.meta, topic:topic, asks:[], t:Date.now()
+  };
+  renderResult(rec);
+  saveHistory(rec);
+  setTimeout(()=>{ $('result').scrollIntoView({behavior:'smooth',block:'start'}); },60);
+};
+
+$('clearBtn').onclick=()=>{
+  if(confirm('清空全部起课记录？')){
+    localStorage.removeItem(KEY); renderHistory();
+  }
+};
+
+$('quickGrid').innerHTML=PALACES.map(p=>
+  `<div class="q-item ${p.luckType}">
+     <span class="n">${p.name}</span>
+     <span class="t">${p.luck} · ${p.short}</span>
+   </div>`).join('');
+
+/* 初始化 */
+(function init(){
+  const saved=localStorage.getItem('xlr_topic');
+  if(saved&&TOPIC_META[saved]) topic=saved;
+  syncTopicUI();
+  refreshTime();
+  renderHistory();
+})();
+setInterval(()=>{ if(mode==='time') refreshTime(); },30000);
+</script>
+</body>
+</html>
